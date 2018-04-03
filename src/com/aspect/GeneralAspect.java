@@ -17,7 +17,7 @@ import base.RollBackException;
  */
 @Component
 @Aspect
-public class GeneralAspect {
+public class GeneralAspect { 
 	public Logger logger = null;
 	
 	// 定义三层切点
