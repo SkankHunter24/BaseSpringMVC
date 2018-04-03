@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.dao.AttachmentMapper" >
+<cache type="base.RedisCache"/>
+  <resultMap id="BaseResultMap" type="com.model.vo.Attachment" >
+    <id column="ATTACHMENT_ID" property="attachmentId" jdbcType="VARCHAR" />
+    <result column="ATTACHMENT_NAME" property="attachmentName" jdbcType="VARCHAR" />
+    <result column="ATTACHMENT_SIZE" property="attachmentSize" jdbcType="VARCHAR" />
+    <result column="ATTACHMENT_TYPE" property="attachmentType" jdbcType="VARCHAR" />
+    <result column="ATTACHMENT_UPLOAD_TIME" property="attachmentUploadTime" jdbcType="VARCHAR" />
+    <result column="ATTACHMENT_UPLOADER_ID" property="attachmentUploaderId" jdbcType="VARCHAR" />
+    <result column="ATTACHMENT_PATH" property="attachmentPath" jdbcType="VARCHAR" />
+    <result column="ATTACHMENT_REMARK" property="attachmentRemark" jdbcType="VARCHAR" />
+    <result column="ATTACHMENT_FLAG" property="attachmentFlag" jdbcType="VARCHAR" />
+    <result column="ATTACHMENT_UPLOADER_NAME" property="attachmentUploaderName" jdbcType="VARCHAR" />
+    <result column="ATTACHMENT_CONTROL_ID" property="attachmentControlId" jdbcType="VARCHAR" />
+    <result column="ATTACHMENT_RELATION_ID" property="attachmentRelationId" jdbcType="VARCHAR" />
+  </resultMap>
+   <sql id="Base_Column_List">
+	  ATTACHMENT_ID, ATTACHMENT_NAME, ATTACHMENT_SIZE, 
+      ATTACHMENT_TYPE, ATTACHMENT_UPLOAD_TIME, ATTACHMENT_UPLOADER_ID, 
+      ATTACHMENT_PATH, ATTACHMENT_REMARK, ATTACHMENT_FLAG, 
+      ATTACHMENT_UPLOADER_NAME, ATTACHMENT_CONTROL_ID, 
+      ATTACHMENT_RELATION_ID
+	</sql>
+	
+	
+	
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from TEST.ATTACHMENT
+    where ATTACHMENT_ID = #{attachmentId,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from TEST.ATTACHMENT
+    where ATTACHMENT_ID = #{attachmentId,jdbcType=VARCHAR}
+  </delete>
+  
+    <select id="selectByRelationId" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from TEST.ATTACHMENT
+    where ATTACHMENT_RELATION_ID = #{attachmentId,jdbcType=VARCHAR}
+  </select>
+  
+    <select id="selectByRelationId_controlId_uploaderId" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from TEST.ATTACHMENT
+    <where>
+     <if test="relationId != null" >
+     ATTACHMENT_RELATION_ID = #{relationId,jdbcType=VARCHAR}
+    </if>
+      <if test="uploaderControlId != null" >
+    AND ATTACHMENT_CONTROL_ID = #{uploaderControlId,jdbcType=VARCHAR}
+    </if>
+      <if test="uploaderId != null" >
+    AND ATTACHMENT_UPLOADER_ID = #{uploaderId,jdbcType=VARCHAR}
+    </if>
+    </where>
+  </select>
+  
+      <select id="selectByRelationId_singleOpreation" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from TEST.ATTACHMENT
+    where ATTACHMENT_RELATION_ID = #{attachmentId,jdbcType=VARCHAR}
+    AND ATTACHMENT_UPLOADER_ID = #{uploaderId,jdbcType=VARCHAR}
+    AND ATTACHMENT_CONTROL_ID = #{uploaderControlId,jdbcType=VARCHAR}
+  </select>
+  
+  <insert id="insert" parameterType="com.model.vo.Attachment" >
+    insert into TEST.ATTACHMENT (ATTACHMENT_ID, ATTACHMENT_NAME, ATTACHMENT_SIZE, 
+      ATTACHMENT_TYPE, ATTACHMENT_UPLOAD_TIME, ATTACHMENT_UPLOADER_ID, 
+      ATTACHMENT_PATH, ATTACHMENT_REMARK, ATTACHMENT_FLAG, 
+      ATTACHMENT_UPLOADER_NAME, ATTACHMENT_CONTROL_ID, 
+      ATTACHMENT_RELATION_ID)
+    values (#{attachmentId,jdbcType=VARCHAR}, #{attachmentName,jdbcType=VARCHAR}, #{attachmentSize,jdbcType=VARCHAR}, 
+      #{attachmentType,jdbcType=VARCHAR}, #{attachmentUploadTime,jdbcType=VARCHAR}, #{attachmentUploaderId,jdbcType=VARCHAR}, 
+      #{attachmentPath,jdbcType=VARCHAR}, #{attachmentRemark,jdbcType=VARCHAR}, #{attachmentFlag,jdbcType=VARCHAR}, 
+      #{attachmentUploaderName,jdbcType=VARCHAR}, #{attachmentControlId,jdbcType=VARCHAR}, 
+      #{attachmentRelationId,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.model.vo.Attachment" >
+    insert into TEST.ATTACHMENT
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="attachmentId != null" >
+        ATTACHMENT_ID,
+      </if>
+      <if test="attachmentName != null" >
+        ATTACHMENT_NAME,
+      </if>
+      <if test="attachmentSize != null" >
+        ATTACHMENT_SIZE,
+      </if>
+      <if test="attachmentType != null" >
+        ATTACHMENT_TYPE,
+      </if>
+      <if test="attachmentUploadTime != null" >
+        ATTACHMENT_UPLOAD_TIME,
+      </if>
+      <if test="attachmentUploaderId != null" >
+        ATTACHMENT_UPLOADER_ID,
+      </if>
+      <if test="attachmentPath != null" >
+        ATTACHMENT_PATH,
+      </if>
+      <if test="attachmentRemark != null" >
+        ATTACHMENT_REMARK,
+      </if>
+      <if test="attachmentFlag != null" >
+        ATTACHMENT_FLAG,
+      </if>
+      <if test="attachmentUploaderName != null" >
+        ATTACHMENT_UPLOADER_NAME,
+      </if>
+      <if test="attachmentControlId != null" >
+        ATTACHMENT_CONTROL_ID,
+      </if>
+      <if test="attachmentRelationId != null" >
+        ATTACHMENT_RELATION_ID,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="attachmentId != null" >
+        #{attachmentId,jdbcType=VARCHAR},
+      </if>
+      <if test="attachmentName != null" >
+        #{attachmentName,jdbcType=VARCHAR},
+      </if>
+      <if test="attachmentSize != null" >
+        #{attachmentSize,jdbcType=VARCHAR},
+      </if>
+      <if test="attachmentType != null" >
+        #{attachmentType,jdbcType=VARCHAR},
+      </if>
+      <if test="attachmentUploadTime != null" >
+        #{attachmentUploadTime,jdbcType=VARCHAR},
+      </if>
+      <if test="attachmentUploaderId != null" >
+        #{attachmentUploaderId,jdbcType=VARCHAR},
+      </if>
+      <if test="attachmentPath != null" >
+        #{attachmentPath,jdbcType=VARCHAR},
+      </if>
+      <if test="attachmentRemark != null" >
+        #{attachmentRemark,jdbcType=VARCHAR},
+      </if>
+      <if test="attachmentFlag != null" >
+        #{attachmentFlag,jdbcType=VARCHAR},
+      </if>
+      <if test="attachmentUploaderName != null" >
+        #{attachmentUploaderName,jdbcType=VARCHAR},
+      </if>
+      <if test="attachmentControlId != null" >
+        #{attachmentControlId,jdbcType=VARCHAR},
+      </if>
+      <if test="attachmentRelationId != null" >
+        #{attachmentRelationId,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  
+  <update id="updateByPrimaryKeySelective" parameterType="com.model.vo.Attachment" >
+    update TEST.ATTACHMENT
+    <set >
+      <if test="attachmentName != null" >
+        ATTACHMENT_NAME = #{attachmentName,jdbcType=VARCHAR},
+      </if>
+      <if test="attachmentSize != null" >
+        ATTACHMENT_SIZE = #{attachmentSize,jdbcType=VARCHAR},
+      </if>
+      <if test="attachmentType != null" >
+        ATTACHMENT_TYPE = #{attachmentType,jdbcType=VARCHAR},
+      </if>
+      <if test="attachmentUploadTime != null" >
+        ATTACHMENT_UPLOAD_TIME = #{attachmentUploadTime,jdbcType=VARCHAR},
+      </if>
+      <if test="attachmentUploaderId != null" >
+        ATTACHMENT_UPLOADER_ID = #{attachmentUploaderId,jdbcType=VARCHAR},
+      </if>
+      <if test="attachmentPath != null" >
+        ATTACHMENT_PATH = #{attachmentPath,jdbcType=VARCHAR},
+      </if>
+      <if test="attachmentRemark != null" >
+        ATTACHMENT_REMARK = #{attachmentRemark,jdbcType=VARCHAR},
+      </if>
+      <if test="attachmentFlag != null" >
+        ATTACHMENT_FLAG = #{attachmentFlag,jdbcType=VARCHAR},
+      </if>
+      <if test="attachmentUploaderName != null" >
+        ATTACHMENT_UPLOADER_NAME = #{attachmentUploaderName,jdbcType=VARCHAR},
+      </if>
+      <if test="attachmentControlId != null" >
+        ATTACHMENT_CONTROL_ID = #{attachmentControlId,jdbcType=VARCHAR},
+      </if>
+      <if test="attachmentRelationId != null" >
+        ATTACHMENT_RELATION_ID = #{attachmentRelationId,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where ATTACHMENT_ID = #{attachmentId,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.model.vo.Attachment" >
+    update TEST.ATTACHMENT
+    set ATTACHMENT_NAME = #{attachmentName,jdbcType=VARCHAR},
+      ATTACHMENT_SIZE = #{attachmentSize,jdbcType=VARCHAR},
+      ATTACHMENT_TYPE = #{attachmentType,jdbcType=VARCHAR},
+      ATTACHMENT_UPLOAD_TIME = #{attachmentUploadTime,jdbcType=VARCHAR},
+      ATTACHMENT_UPLOADER_ID = #{attachmentUploaderId,jdbcType=VARCHAR},
+      ATTACHMENT_PATH = #{attachmentPath,jdbcType=VARCHAR},
+      ATTACHMENT_REMARK = #{attachmentRemark,jdbcType=VARCHAR},
+      ATTACHMENT_FLAG = #{attachmentFlag,jdbcType=VARCHAR},
+      ATTACHMENT_UPLOADER_NAME = #{attachmentUploaderName,jdbcType=VARCHAR},
+      ATTACHMENT_CONTROL_ID = #{attachmentControlId,jdbcType=VARCHAR},
+      ATTACHMENT_RELATION_ID = #{attachmentRelationId,jdbcType=VARCHAR}
+    where ATTACHMENT_ID = #{attachmentId,jdbcType=VARCHAR}
+  </update>
+</mapper>

@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="
+        http://www.springframework.org/schema/beans     
+        http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context-4.0.xsd
+        http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop-4.0.xsd
+        http://www.springframework.org/schema/tx
+        http://www.springframework.org/schema/tx/spring-tx-4.0.xsd
+        http://www.springframework.org/schema/util
+        http://www.springframework.org/schema/util/spring-util-4.0.xsd">
+
+	<context:annotation-config />
+
+
+
+	<!--导入配置文件 -->
+	<bean id="DBConfig"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">
+			<list>
+				<value>classpath:config/datebase.properties</value>
+				<value>classpath:config/redis.properties</value>
+			</list>
+		</property>
+	</bean>
+
+	<!--Atomikos+druid -->
+	<bean id="abstractXADataSource" class="com.atomikos.jdbc.AtomikosDataSourceBean"
+		init-method="init" destroy-method="close" abstract="true">
+		<property name="xaDataSourceClassName" value="${jdbc.xaDataSourceClassName}" />
+
+		<property name="poolSize" value="${jdbc.poolSize}" />
+		<property name="minPoolSize" value="${jdbc.minPoolSize}" />
+		<property name="maxPoolSize" value="${jdbc.maxPoolSize}" />
+		<property name="borrowConnectionTimeout" value="${jdbc.poolSize}" />
+		<property name="reapTimeout" value="${jdbc.reapTimeout}" />
+		<property name="maxIdleTime" value="${jdbc.maxIdleTime}" />
+		<property name="maintenanceInterval" value="${jdbc.maintenanceInterval}" />
+		<property name="loginTimeout" value="${jdbc.loginTimeout}" />
+		<property name="testQuery" value="${validationQuery}" />
+
+	</bean>
+	<!--数据源1 -->
+	<bean id="db1DataSource" parent="abstractXADataSource">
+
+		<property name="uniqueResourceName" value="DB1" />
+		<property name="xaProperties">
+			<props>
+				<prop key="driverClassName">${jdbc.ds.driverClass}</prop>
+				<prop key="url">${jdbc.ds.url}</prop>
+				<prop key="password">${jdbc.ds.password}</prop>
+				<prop key="username">${jdbc.ds.username}</prop>
+				<prop key="initialSize">${jdbc.ds.initialSize}</prop>
+				<prop key="maxActive">${jdbc.ds.maxActive}</prop>
+				<prop key="minIdle">${jdbc.ds.minIdle}</prop>
+				<prop key="maxWait">${jdbc.ds.maxWait}</prop>
+				<prop key="validationQuery">${validationQuery}</prop>
+				<prop key="testWhileIdle">${jdbc.ds.testWhileIdle}</prop>
+				<prop key="removeAbandoned">${jdbc.ds.removeAbandoned}</prop>
+				<prop key="removeAbandonedTimeout">${jdbc.ds.removeAbandonedTimeout}</prop>
+				<prop key="logAbandoned">${jdbc.ds.logAbandoned}</prop>
+				<prop key="filters">${jdbc.ds.filters}</prop>
+
+			</props>
+		</property>
+	</bean>
+
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="db1DataSource" />
+		<property name="configLocation" value="classpath:config/mybatis-configuration.xml" />
+		<property name="mapperLocations" value="classpath:com/model/**/*.xml" />
+		<property name="typeAliasesPackage" value="com.paincupid.springmvc.domain" />
+	</bean>
+
+
+	<bean id="sqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
+		<constructor-arg index="0" ref="sqlSessionFactory" />
+	</bean>
+
+	<bean id="atomikosUserTransaction" class="com.atomikos.icatch.jta.UserTransactionImp">
+		<property name="transactionTimeout" value="300" />
+	</bean>
+	<!-- 配置事务管理器 -->
+
+
+	<!-- atomikos事务管理器 -->
+	<bean id="atomikosTransactionManager" class="com.atomikos.icatch.jta.UserTransactionManager"
+		init-method="init" destroy-method="close">
+		<property name="forceShutdown">
+			<value>true</value>
+		</property>
+		<property name="transactionTimeout" value="300" />
+	</bean>
+
+
+	<bean id="transactionManager"
+		class="org.springframework.transaction.jta.JtaTransactionManager">
+		<property name="transactionManager" ref="atomikosTransactionManager" />
+		<property name="userTransaction" ref="atomikosUserTransaction" />
+		<!-- 必须设置，否则程序出现异常 JtaTransactionManager does not support custom isolation 
+			levels by default -->
+		<property name="allowCustomIsolationLevels" value="true" />
+	</bean>
+
+
+	<!-- JTA事务传播特性 -->
+	<tx:advice id="txAdviceJta" transaction-manager="transactionManager">
+		<tx:attributes>
+			<tx:method name="save*" propagation="REQUIRED"
+				rollback-for="base.RollBackException" isolation="SERIALIZABLE" />
+			<tx:method name="delete*" propagation="REQUIRED"
+				rollback-for="base.RollBackException" isolation="SERIALIZABLE" />
+			<tx:method name="update*" propagation="REQUIRED"
+				rollback-for="base.RollBackException" isolation="SERIALIZABLE" />
+			<tx:method name="create*" propagation="REQUIRED"
+				rollback-for="base.RollBackException" isolation="SERIALIZABLE" />
+			<tx:method name="add*" propagation="REQUIRED" rollback-for="base.RollBackException"
+				isolation="SERIALIZABLE" />
+			<tx:method name="remove*" propagation="REQUIRED"
+				rollback-for="base.RollBackException" isolation="SERIALIZABLE" />
+			<tx:method name="insert*" propagation="REQUIRED"
+				rollback-for="base.RollBackException" isolation="SERIALIZABLE" />
+			<tx:method name="get*" read-only="true" />
+		</tx:attributes>
+	</tx:advice>
+
+	<aop:config>
+		<aop:advisor pointcut="execution(* com.model..*(..))"
+			advice-ref="txAdviceJta" />
+	</aop:config>
+
+</beans>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE generatorConfiguration PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN" "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd" >
+<generatorConfiguration >
+  <context id="context1" >
+  <commentGenerator>
+        <property name="suppressDate" value="true"/>
+        <property name="suppressAllComments" value="true" />
+    </commentGenerator>
+    <jdbcConnection driverClass="oracle.jdbc.driver.OracleDriver" connectionURL="jdbc:oracle:thin:@127.0.0.1:1521:orcl" userId="test" password="test" />
+    <javaModelGenerator targetPackage="com.model.vo" targetProject="BaseSpringMVC" />
+    <sqlMapGenerator targetPackage="com.dao" targetProject="BaseSpringMVC" />
+    <javaClientGenerator targetPackage="com.dao" targetProject="BaseSpringMVC" type="XMLMAPPER" />
+    <table schema="test" tableName="ATTACHMENT" >
+    </table>
+    
+  </context>
+  
+</generatorConfiguration>
